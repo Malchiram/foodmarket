@@ -1,0 +1,506 @@
+body {
+  background-color: #e5e5e5;
+}
+/* .backgroundImage {
+  background-color: #ffc700;
+  height: 558px;
+  width: 100vw;
+} */
+.backgroundImageAdmin {
+  background-color: #ffc700;
+  width: 100vw;
+}
+
+input[type=file]::-webkit-file-upload-button {
+  visibility: hidden;
+  display: none;
+}
+
+/* navbar */
+
+.badge {
+  position: relative;
+  left: -20px;
+  border-radius: 50%;
+  font-weight: 700;
+}
+
+.setNav {
+  padding: 12px 65px 0;
+}
+
+.imageNav {
+  width: 124px;
+}
+
+.imgPartnerUser {
+  width: 60px;
+  height: 60px;
+  margin-top: 0;
+  border-radius: 50%;
+  border: 2px solid #000000;
+  box-shadow: 0 0 0 1px #eeeeee;
+}
+
+.imgUserBucket {
+  width: 35px;
+  height: 35px;
+  margin-top: 20px;
+  margin-right: 10px;
+}
+
+.dropPartner {
+  margin-top: 5px;
+  font-family: "Avenir";
+  font-weight: 800;
+  color: #000;
+}
+
+.icsPartner {
+  margin-right: 10px;
+  color: #433434
+}
+
+.linePartner {
+  border: 2px solid #a8a8a8;
+}
+
+.loginNav {
+  background-color: #433434;
+  color: #fff;
+  border-radius: 5px;
+  width: 120px;
+  margin-right: 16px;
+  border: none;
+  font-family: "Product Sans";
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-align: center;
+  font-size: 14px;
+}
+.regNav {
+  background-color: #433434;
+  color: #fff;
+  border-radius: 5px;
+  width: 120px;
+  margin-right: 16px;
+  border: none;
+  font-family: "Product Sans";
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-align: center;
+  font-size: 14px;
+}
+
+/* JumboTron */
+.JumboPage {
+  background-color: #ffc700;
+  width: 100vw;
+}
+.imgPizza {
+  width: 408px;
+  height: 393px;
+}
+
+.d-jumbo {
+  font-family: "Abhaya Libre";
+  color: #433434;
+}
+
+.fontLorem {
+  font-family: "Avenir";
+  font-size: 14px;
+  color: #000;
+}
+
+.rectangle {
+  border-top: 3px solid #433434;
+}
+
+/* Register */
+
+.RegisterLog {
+  font-size: 36px;
+  margin-left: 33px;
+  margin-top: 41px;
+  color: #ffc700;
+  font-weight: 900;
+  font-family: "Avenir";
+  line-height: 49px;
+}
+
+.bodyRegLog {
+  padding: 29px 33px 0;
+}
+
+.formGroup {
+  margin-bottom: 20px;
+}
+.buttonRegisterLog {
+  margin: 45px 0 20px;
+}
+.buttonRegisterLog button {
+  width: 100%;
+  background-color: #433434;
+  color: #fff;
+  padding: 13px 0;
+  border: none;
+  font-family: "Avenir";
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: 3px;
+}
+
+.buttonRegisterLog button:hover {
+  background-color: #ffc700;
+  color: #fff;
+  letter-spacing: 3px;
+}
+
+.blurText {
+  color: #b1b1b1 !important;
+  font-size: 18px;
+  font-family: "Avenir";
+}
+
+.blurText span {
+  font-weight: 700;
+}
+
+/* home */
+.popularRestaurant {
+  width: 250px;
+  height: 95px;
+  background-color: #fff;
+  border-radius: 5px;
+  display: flex;
+}
+
+.imagePop {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 2px solid #000;
+}
+
+.textPop {
+  font-size: 24px;
+  font-family: "Abhaya libre ExtraBold";
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  margin-top: 1rem;
+}
+
+.homePopular {
+  margin-top: 59px;
+}
+.homePopular h3 {
+  font-family: "Abhaya Libre";
+  font-weight: 800;
+  font-size: 36px;
+  color: #000;
+  letter-spacing: 1px;
+}
+
+.recommended {
+  width: 245px;
+  height: 221px;
+  background-color: #fff;
+  padding: 10px;
+  margin-bottom: 62px;
+  cursor: pointer;
+}
+.dropdown-menu[data-bs-popper] {
+  left: -80px !important;
+}
+
+.imageRes {
+  width: 100%;
+  height: 134px;
+  border: 1px solid #eeeeee;
+  object-fit: cover;
+  object-position: center;
+  scale: 90%;
+}
+
+.textRes {
+  font-size: 18px;
+  font-family: "Abhaya Libre ExtraBold";
+  font-weight: 800;
+  color: #000;
+  margin-top: 5px;
+  margin-left: 10px;
+  margin-bottom: 0;
+}
+.textDistance{
+  font-family: "Avenir";
+  font-weight: 400;
+  font-size: 14px;
+  margin-top: 5px;
+  margin-left: 10px;
+}
+
+/* Admin */
+
+.addProduct {
+  font-family: "Abhaya Libre";
+  font-weight: 800;
+  font-size: 36px;
+  color: #000;
+  margin-bottom: 40px;
+}
+
+.buttonAddProduct {
+  float: right;
+  margin-top: 24px;
+}
+
+.buttonAddProduct button {
+  padding: 12px 114px;
+  border: none;
+  border-radius: 5px;
+  background-color: #433434;
+  color: #fff;
+  font-family: "Product Sans";
+  font-weight: 700;
+}
+
+.ProfilePartner {
+  padding-top: 5rem;
+}
+.ProfileUser {
+  margin-top: 50px;
+  margin-right: 10px;
+}
+
+
+.textProfile {
+  font-family: "Abhaya Libre";
+  font-weight: 800;
+  font-size: 36px;
+  color: #000;
+}
+
+.divProfile {
+  margin-top: 32px;
+}
+.imageProfile {
+  width: 100%;
+  height: 221.79px;
+}
+
+.detailProfile {
+  font-family: "Avenir";
+  font-size: 18px;
+}
+.detailProfile h5 {
+  font-weight: 800;
+  color: #613D2B;
+  margin-bottom: -3px;
+}
+
+.detailProfile p {
+  font-weight: 400;
+  color: #000;
+}
+
+.divProfile button {
+  margin-top: 16px;
+  padding: 11px 54px;
+  border: none;
+  border-radius: 5px;
+  background-color: #433434;
+  color: #fff;
+  font-family: "Product Sans";
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.cardHistory {
+  width: 419px;
+  height: 101px;
+  background-color: #fff;
+  padding: 14px 16px;
+  margin-bottom: 5px;
+}
+
+.pName {
+  font-family: "Abhaya Libre";
+  font-weight: 800;
+  font-size: 14px;
+  color: #000;
+}
+
+.pDate {
+  font-family: "Avenir";
+  font-weight: 300;
+  font-size: 9px;
+  color: #000;
+}
+.pDate span {
+  font-weight: 900;
+}
+
+.pTotal {
+  font-family: "Avenir";
+  font-weight: 900;
+  font-size: 10px;
+  color: #974A4A;
+}
+
+.historyStatus {
+  background-image:linear-gradient(to right,#00ff772e,#00ff773e ) ;
+  margin-top: 4px;
+}
+
+.historyStatus p {
+  padding: 2px 35px;
+  text-align: center;
+  color: #00FF47;
+  font-family: "Avenir";
+  size: 10px;
+  font-weight: 500;
+}
+
+
+
+.MapButton button {
+  padding: 12px 47px;
+  width: 280px;
+  background-color: #433434;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  letter-spacing: 1px;
+}
+
+/* User */
+
+.cardPartner {
+  margin: 30px 40px 0 15px;
+  width: 245px;
+  height: 266px;
+  background-color: #fff;
+  border-radius: 5px;
+}
+.containerCard {
+  margin-top: 73px;
+}
+.padCard {
+  padding: 12px 0;
+}
+.padCard button {
+  width: 100%;
+  height: 30px;
+  background-color: #ffc700;
+  border-radius: 5px;
+  border: none;
+  text-align: center;
+  font-family: "Avenir";
+  font-weight: 800;
+  letter-spacing: 1px;
+  font-size: 14px;
+  margin-top: 17px;
+}
+.imgCardPartner {
+  width: 80%;
+  height: 134px;
+  margin-top: 2px;
+}
+
+.textCard {
+  font-family: "Abhaya Libre ExtraBold";
+  font-size: 20px;
+  font-weight: 800;
+  color: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.priceCard {
+  color: #ff1515;
+  font-family: "Avenir";
+  font-weight: 400;
+  font-size: 14px;
+  margin-bottom: 0;
+}
+
+.imgTransaction {
+  width: 80px;
+  height: 80px;
+  margin: 17px 13px 17px 0;
+}
+
+.textTransaction {
+  font-family: "Abhaya Libre ExtraBold";
+  font-weight: 800;
+  font-size: 18px;
+  margin-top: 31px;
+  margin-bottom: 5px;
+}
+.bin {
+  text-align: end;
+  padding-right: 24px;
+}
+
+.transactionButton {
+  float: right;
+  margin-top: 50px;
+  margin-bottom: 50px;
+}
+
+.transactionButton button {
+  padding: 13px 100px;
+  border: none;
+  background-color: #433434;
+  color: #fff;
+  border-radius: 5px;
+}
+
+.listAdmin li {
+  list-style: none;
+  border: 1.5px solid black;
+  padding: 5px 20px;
+  cursor: pointer;
+}
+
+.listAdmin li a {
+  text-decoration: none;
+  color: #000;
+  font-weight: 600;
+}
+
+.preStyle {
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+.nextStyle {
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+.green {
+  color: rgb(0, 201, 0) !important;
+  font-weight: 800;
+}
+
+.orange {
+  color: rgb(255, 101, 45) !important;
+  font-weight: 800;
+}
+
+.linkAdmin:hover {
+  font-weight: 600;
+  text-decoration: underline !important;
+}
+
+.hidden {
+  display: none;
+}
+
+.active {
+  background-color: #0224ffb5;
+  color: #fff;
+  font-weight: bold;
+}
