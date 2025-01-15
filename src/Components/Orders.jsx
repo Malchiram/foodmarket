@@ -62,8 +62,8 @@ const Orders = () => {
   }
 
 
-  const latUser = state?.user.location.split(",")[0]
-  const lngUser = state?.user.location.split(",")[1]
+  const latUser = state?.user.lat
+  const lngUser = state?.user.lng
   const partnerLocLng = data[0]?.seller?.location?.split(",")[1]
   const partnerLocLat = data[0]?.seller?.location?.split(",")[0]
   useEffect(() => {
@@ -96,7 +96,7 @@ const Orders = () => {
   const subQty = totalQty.reduce((acc, curr) => acc + curr, 0
   )
 
-  const calculatedDistance = calculateDistance(partnerLocLng, partnerLocLat, loc?.split(",")[1], loc?.split(",")[0])
+  const calculatedDistance = calculateDistance(partnerLocLng, partnerLocLat, lngUser, latUser)
   const distances = calculatedDistance.toFixed(2)
   let totalOngkir = ongkir * distances
   let result = subTotal + totalOngkir
