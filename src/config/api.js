@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Create base URL API
 export const API = axios.create({
-  baseURL: process.env.REACT_APP_MIDTRANS_CLIENT_KEY,
+  baseURL: process.env.REACT_APP_BASE_URL,
 });
 
 export const APILOC = axios.create({
