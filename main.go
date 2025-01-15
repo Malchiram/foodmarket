@@ -7,6 +7,7 @@ import (
 
 	"mytask/pkg/mysql"
 	"mytask/routes"
+	"path/filepath"
 
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
@@ -14,7 +15,7 @@ import (
 )
 
 func main() {
-	errEnv := godotenv.Load()
+	errEnv := godotenv.Load(filepath.Join("/home/yogaaneh1/project/foodmarket/", ".env"))
 	if errEnv != nil {
 		panic("failed load env file")
 	}
