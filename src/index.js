@@ -4,7 +4,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./main.css";
-
+import { Analytics } from "@vercel/analytics/react"
 import { QueryClient, QueryClientProvider } from "react-query";
 import { UserContextProvider } from "./utils/context/userContext";
 
@@ -15,6 +15,7 @@ root.render(
     <React.StrictMode>
       <QueryClientProvider client={client}>
         <App />
+        <Analytics />
       </QueryClientProvider>
     </React.StrictMode>
   </UserContextProvider>,
