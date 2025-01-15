@@ -78,6 +78,9 @@ func (h *handlerAuth) Register(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, dto.SuccessResult{Code: http.StatusOK, Data: registerResponse})
 }
+func (h *handlerAuth) Test(c echo.Context) error {
+	return c.String(http.StatusOK, "API OKAY")
+}
 
 func (h *handlerAuth) Login(c echo.Context) error {
 	request := new(authdto.LoginRequest)
