@@ -1,0 +1,39 @@
+version: "3.7"
+
+services:
+  mysql:
+    container_name: mysql
+    image: mysql:latest
+    restart: always
+    ports:
+      - 3307:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: misael
+      MYSQL_DATABASE: waysfood
+    volumes:
+      - data_local:/var/lib/mysql
+    networks:
+      - foodmarket_network
+  foodmarket:
+    container_name: foodmarket
+    image: foodmarket:1.0
+    ports:
+      - 5000:5000
+    environment:
+      PORT: 5000
+      CLOUD_NAME: dtkeri95r
+      API_KEY: 146957141557535
+      API_SECRET: kvyZXZm_Zx6O9M2Hlckr9W5P02U
+      SERVER_KEY: SB-Mid-server-EynuajQ5cVNXDwJ4w0QT8S0X
+    depends_on:
+      - mysql
+    networks:
+      - foodmarket_network
+
+networks:
+  foodmarket_network:
+    name: foodmarket_network  # Pastikan menggunakan driver yang benar
+
+volumes:
+  data_local:
+    external: true  # Menggunakan volume eksternal yang sudah ada

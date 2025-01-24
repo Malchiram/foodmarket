@@ -61,8 +61,17 @@ func (h *handlerProduct) GetProduct(c echo.Context) error {
 }
 
 func (h *handlerProduct) CreateProduct(c echo.Context) error {
-	dataFile := c.Get("dataFile").(string)
+	file, err := c.FormFile("image")
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, dto.ErrorResult{Code: http.StatusBadRequest, Message: "Failed to get image"})
+	}
 
+	// Buka file
+	src, err := file.Open()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, dto.ErrorResult{Code: http.StatusInternalServerError, Message: "Failed to open image"})
+	}
+	defer src.Close()
 	userLogin := c.Get("userLogin")
 	sellerId := userLogin.(jwt.MapClaims)["id"].(float64)
 
@@ -71,13 +80,13 @@ func (h *handlerProduct) CreateProduct(c echo.Context) error {
 	// UserId, _ := strconv.Atoi(c.FormValue("user_id"))
 	request := productdto.CreateProductReq{
 		Title:  c.FormValue("title"),
-		Image:  dataFile,
+		Image:  file.Filename,
 		Price:  Price,
 		UserId: int(sellerId),
 	}
 
 	validation := validator.New()
-	err := validation.Struct(request)
+	err = validation.Struct(request)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()})
 	}
@@ -90,11 +99,16 @@ func (h *handlerProduct) CreateProduct(c echo.Context) error {
 	cld, _ := cloudinary.NewFromParams(CLOUD_NAME, API_KEY, API_SECRET)
 
 	// Upload file to Cloudinary ...
-	resp, err := cld.Upload.Upload(ctx, dataFile, uploader.UploadParams{Folder: "WAYSFOOD"})
+	resp, err := cld.Upload.Upload(ctx, src, uploader.UploadParams{Folder: "WAYSFOOD"})
 	// data form pattern submit to pattern entity db Product
 
 	if err != nil {
-		fmt.Println(err.Error())
+		// Log error and return it to user
+		fmt.Println("Error uploading to Cloudinary:", err.Error())
+		return c.JSON(http.StatusInternalServerError, dto.ErrorResult{
+			Code:    http.StatusInternalServerError,
+			Message: "File upload failed: " + err.Error(),
+		})
 	}
 	Products := models.Product{
 		Title:  request.Title,

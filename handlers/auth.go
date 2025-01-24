@@ -105,20 +105,29 @@ func (h *handlerAuth) Login(c echo.Context) error {
 		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: "Wrong Email or Password"}
 		return c.JSON(http.StatusBadRequest, response)
 	}
-
+	userDetails, err := h.AuthRepository.CheckAuth(user.ID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, dto.ErrorResult{Code: http.StatusInternalServerError, Message: err.Error()})
+	}
 	// GenerateToken
-
-	claims := jwt.MapClaims{}
-	claims["id"] = user.ID
-	claims["role"] = user.Role
-	claims["exp"] = time.Now().Add(time.Hour * 2).Unix()
-
+	claims := jwt.MapClaims{
+		"id":        user.ID,
+		"role":      user.Role,
+		"exp":       time.Now().Add(time.Hour * 2).Unix(),
+		"user_info": userDetails, // Menambahkan userDetails ke klaim
+	}
 	token, errGenerateToken := jwtToken.GenerateToken(&claims)
 	if errGenerateToken != nil {
 		fmt.Println(errGenerateToken)
 		return echo.NewHTTPError(http.StatusUnauthorized)
 	}
-	loginResponse := authdto.LoginResponse{
+
+	loginResponse := struct {
+		Email string `json:"email"`
+		Token string `json:"token"`
+		Role  string `json:"role"`
+		ID    int    `json:"id"`
+	}{
 		Email: user.Email,
 		Token: token,
 		Role:  user.Role,

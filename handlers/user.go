@@ -106,27 +106,41 @@ func (h *HandlerUser) CreateUser(c echo.Context) error {
 }
 
 func (h *HandlerUser) UpdateUser(c echo.Context) error {
-	dataFile := c.Get("dataFile").(string)
-	fmt.Println("this is data file", dataFile)
+	file, _ := c.FormFile("image")
+	var imageURL string
 	userLogin := c.Get("userLogin")
 	userID := userLogin.(jwt.MapClaims)["id"].(float64)
 
-	var ctx = context.Background()
-	var CLOUD_NAME = os.Getenv("CLOUD_NAME")
-	var API_KEY = os.Getenv("API_KEY")
-	var API_SECRET = os.Getenv("API_SECRET")
+	if file != nil {
+		// Buka file
+		src, err := file.Open()
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, dto.ErrorResult{
+				Code:    http.StatusInternalServerError,
+				Message: "Failed to open image",
+			})
+		}
+		defer src.Close()
 
-	cld, _ := cloudinary.NewFromParams(CLOUD_NAME, API_KEY, API_SECRET)
+		// Cloudinary configuration
+		var ctx = context.Background()
+		var CLOUD_NAME = os.Getenv("CLOUD_NAME")
+		var API_KEY = os.Getenv("API_KEY")
+		var API_SECRET = os.Getenv("API_SECRET")
 
-	var imageURL string
-	if dataFile != "" {
-		resp, err := cld.Upload.Upload(ctx, dataFile, uploader.UploadParams{Folder: "WAYSFOOD"})
+		cld, _ := cloudinary.NewFromParams(CLOUD_NAME, API_KEY, API_SECRET)
+
+		// Upload ke Cloudinary
+		resp, err := cld.Upload.Upload(ctx, src, uploader.UploadParams{Folder: "WAYSFOOD"})
 		if err != nil {
 			fmt.Println(err.Error())
-			// Jika ada error saat upload, kembalikan error
-			return c.JSON(http.StatusInternalServerError, dto.ErrorResult{Code: http.StatusInternalServerError, Message: "Image upload failed"})
+			return c.JSON(http.StatusInternalServerError, dto.ErrorResult{
+				Code:    http.StatusInternalServerError,
+				Message: "Image upload failed",
+			})
 		}
-		imageURL = resp.SecureURL // Menyimpan URL gambar jika berhasil upload
+
+		imageURL = resp.SecureURL // URL gambar hasil upload
 	}
 	Lat, err := strconv.ParseFloat(c.FormValue("lat"), 64)
 	if err != nil {
@@ -147,9 +161,7 @@ func (h *HandlerUser) UpdateUser(c echo.Context) error {
 		Lng:       Lng,
 	}
 
-	if imageURL != "" {
-		request.Image = imageURL
-	}
+	fmt.Println(imageURL)
 	profile, err := h.UserRepository.GetUser(int(userID))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()})
@@ -170,8 +182,8 @@ func (h *HandlerUser) UpdateUser(c echo.Context) error {
 	if request.Address != "" {
 		profile.Address = request.Address
 	}
-	if request.Image != "" {
-		profile.Image = request.Image // Update image jika ada
+	if imageURL != "" {
+		profile.Image = imageURL
 	}
 	if request.Lat != 0 {
 		profile.Lat = request.Lat // Update Lat jika ada perubahan

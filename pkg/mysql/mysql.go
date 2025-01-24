@@ -13,7 +13,7 @@ var DB *gorm.DB
 func DatabaseInit() {
 	var err error
 	// dsn := "root:@tcp(localhost:3306)/dewe?charset=utf8mb4&parseTime=True&loc=Local"
-	dsn := "mytaskdb:Hc3i53oENuXy1IB@tcp(localhost:3306)/waysfood?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := "root:misael@tcp(mysql:3306)/waysfood?charset=utf8mb4&parseTime=True&loc=Local"
 
 	// var DB_HOST = os.Getenv("DB_HOST")
 	// var DB_USER = os.Getenv("DB_USER")
