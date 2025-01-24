@@ -1,30 +1,23 @@
 import Swal from "sweetalert2";
-import { API } from "../config/api";
+import api, { API } from "../config/api";
+import { secureLS } from "./auth";
 
 
 
 export async function editProfile( data) {
 
   try {
-    
+    const token = secureLS.get('authToken')
     const config = {
       headers: {
-        "content-type": "multipart/form-data",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        "Content-type": "multipart/form-data",
+        "Authorization"  : `Bearer ${token}` 
       },
     };
-    const response = await API.patch("update-user", data, config);
+    const response = await api.patch("update-user", data, config);
     if (response && response.status === 200) {
-     const alert = Swal.fire("Good job!", "Edit Profile Success");
-      if(alert && response.data.data.role === "As Partner") {
-        setTimeout(() => {
-          window.location.href = "/ProfilePartner"
-        },1000)
-      } else if (response.data.data.role === "As User"){
-        setTimeout(() => {
-          window.location.href = "/Profile"
-        },1000)
-      }
+      Swal.fire("Good job!", "Edit Profile Success");
+      return response.data
       }
   } catch (error) {
     Swal.fire("Something Wrong!", "Edit Profile Failed");
@@ -32,15 +25,17 @@ export async function editProfile( data) {
   }
 }
 
-export async function getOrder() {
+export async function getOrder(isLogin) {
   try {
-    const response = await API.get("order-user");
-    if (response && response.status > 200) {
-      Swal.fire("Something Wrong!", "data Failed");
-    } else {
-      // Swal.fire("Good job!", "Login Success");
-      return response.data.data
-    }
+
+      const response = await api.get("order-user");
+      if (response && response.status > 200) {
+        Swal.fire("Something Wrong!", "data Failed");
+      } else {
+        // Swal.fire("Good job!", "Login Success");
+          return response.data.data
+      }
+   
   } catch (error) {
     throw new Error("Failed to fetch data");
   }
@@ -54,7 +49,7 @@ export async function postOrder(data) {
       },
     };
   
-    const order = await API.post("order", data, config);
+    const order = await api.post("order", data, config);
     console.log(order, "ini order")
   } catch (error) {
     throw new error("Failed Login");

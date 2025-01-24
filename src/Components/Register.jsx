@@ -3,7 +3,6 @@ import { Button, Form, Modal } from "react-bootstrap";
 import { useCustomMutation } from "../config/query";
 
 
-import Swal from "sweetalert2";
 import { register } from "../utils/auth";
 
 function Register({ showReg, handleClose }) {

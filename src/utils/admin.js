@@ -1,17 +1,19 @@
 import Swal from "sweetalert2";
-import { API } from "../config/api";
+import api, { API } from "../config/api";
+import { secureLS } from "./auth";
 
 
 
 export async function addProduct(data) {
+   const token = secureLS.get('authToken')
   try {
     const config = {
       headers: {
-        "content-type": "multipart/form-data",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
+       'Content-Type': 'multipart/form-data',
+       "Authorization"  : `Bearer ${token}` 
       },
     };
-    const response = await API.post("/product", data, config);
+    const response = await api.post("/product", data, config);
     if (response && response.status > 200) {
         Swal.fire("Something Wrong!", "Add Product Failed");
       } else {
@@ -25,7 +27,7 @@ export async function addProduct(data) {
 
 export async function Partner() {
   try {
-    const response = await API.get("partner");
+    const response = await api.get("partner");
     if (response?.status === 200) {
       return response?.data?.data;
     }
@@ -36,7 +38,7 @@ export async function Partner() {
 
 export async function transactionPartner() {
   try {
-    const response = await API.get("transaction-partner");
+    const response = await api.get("transaction-partner");
     if (response.status === 200) {
       return response.data.data;
     }
@@ -46,7 +48,7 @@ export async function transactionPartner() {
 }
 export async function transactionUser() {
   try {
-    const response = await API.get("transaction-user");
+    const response = await api.get("transaction-user");
     if (response.status === 200) {
       return response?.data?.data;
     }

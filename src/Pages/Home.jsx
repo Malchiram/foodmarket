@@ -12,11 +12,9 @@ const Home = () => {
   const handleSearch = (term) => {
     setSearchTerm(term);
   };
-  const [state] = useContext(UserContext)
   // let { data, isLoading, isSuccess } = useCustomQuery("partner", Partner)
   // console.log(state, "cel")
   let result = useCustomQuery("partner", Partner)
-console.log(result);
 
   return (
     <>

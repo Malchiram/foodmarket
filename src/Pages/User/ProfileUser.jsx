@@ -6,6 +6,7 @@ import { useContext } from "react";
 import { UserContext } from "../../utils/context/userContext";
 import { useCustomQuery } from "../../config/query";
 import { transactionUser } from "../../utils/transaction";
+import { useSelector } from "react-redux";
 const DetailProfilePartner = () => {
   const navigate = useNavigate()
   const handleButtonProfile = () => {
@@ -22,8 +23,9 @@ const DetailProfilePartner = () => {
     var formattedDate = params.toLocaleDateString("en-US", options);
     return formattedDate;
   };
+  const { user } = useSelector((state) => state?.user);
 
-  const [state] = useContext(UserContext)
+
   let { data, isLoading } = useCustomQuery("transaction", transactionUser)
 
 
@@ -40,20 +42,20 @@ const DetailProfilePartner = () => {
           <Col >
             <Row >
               <Col md={4}>
-                <img src={state.user.image} alt="" className="imageProfile" />
+                <img src={user.image} alt="" className="imageProfile" />
               </Col>
               <Col md={4} className="detailProfile">
                 <div>
                   <h5>Name</h5>
-                  <p>{state.user.fullname}</p>
+                  <p>{user.fullname}</p>
                 </div>
                 <div>
                   <h5>Email</h5>
-                  <p>{state.user.email}</p>
+                  <p>{user.email}</p>
                 </div>
                 <div>
                   <h5>Phone</h5>
-                  <p>{state.user.phone}</p>
+                  <p>{user.phone}</p>
                 </div>
               </Col>
             </Row>

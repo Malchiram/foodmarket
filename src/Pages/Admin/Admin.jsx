@@ -1,11 +1,18 @@
 import IncomingTrip from "../../Components/Admin/IncomingTransaction";
 import { useCustomQuery } from "../../config/query";
-import { transactionPartner } from "../../utils/admin";
+import { transactionPartner } from "../../utils/transaction";
 const Admin = () => {
-  let { data: transaction, isLoading } = useCustomQuery("partner", transactionPartner)
+   const { data, isLoading } = useCustomQuery(
+     "transactionPartner",
+     transactionPartner, {
+       staleTime: Infinity, // Data akan dianggap selalu valid (tidak basi)
+       cacheTime: 1000 * 60 * 5, // Data akan tetap di-cache selama 5 menit
+     }
+   );
+ 
   return (
     <>
-      <IncomingTrip data={transaction} isLoading={isLoading} />
+      <IncomingTrip data={data} isLoading={isLoading} />
 
 
     </>

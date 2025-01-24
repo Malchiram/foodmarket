@@ -1,35 +1,48 @@
-import { useContext } from "react";
+import { useCallback, useContext } from "react";
 import { Col, Container, Row } from "react-bootstrap";
 import { useParams } from "react-router-dom";
 import { useCustomMutation, useCustomQuery } from "../config/query";
-import { UserContext } from "../utils/context/userContext";
 import { getProductId } from "../utils/product";
 import { getOrder, postOrder } from "../utils/profile";
+import { useDispatch, useSelector } from "react-redux";
+import { setOrderLength } from "../utils/action/orderAction";
 
 const Detail = () => {
   const { id } = useParams();
+  const dispatch = useDispatch();
+  const { isLogin,role,user } = useSelector((state) => state?.user);
 
-  const [state] = useContext(UserContext)
 
-  let { data: Partner, isLoading } = useCustomQuery(["data", id], () =>
+  let { data: Partner, isLoading, } = useCustomQuery(["data", id], () =>
     getProductId(id),
   );
 
-  let result = useCustomQuery("test", getOrder)
+   const getOrderMemoized = useCallback(() => getOrder(isLogin && user.role === "As User"), []);
+    let {  refetch } = useCustomQuery("test", getOrderMemoized, {
+      staleTime: 300000, // Data dianggap fresh selama 5 menit
+      cacheTime: 600000 // Cache data selama 10 menit
+    })
   const order = useCustomMutation("try", postOrder)
 
-  const handleOrder = (prod) => {
-    let datas = {
-      qty: 1,
-      buyer_Id: state.user.id,
-      seller_Id: prod.user.id,
-      product_Id: prod.id,
-    };
-    order.mutate(datas, {
-      onSuccess: () => {
-        result.refetch()
-      },
+  const handleOrder = async (prod) => {
+    try {
+      let datas = {
+        qty: 1,
+        buyer_Id: user.id,
+        seller_Id: prod.user.id,
+        product_Id: prod.id,
+      };
+      await order.mutateAsync(datas,{onSuccess: async () => {
+        const updatedData = await refetch();
+        dispatch(setOrderLength(updatedData.data.length));
+      }
     });
+    
+    } catch (error) {
+      console.log(error)
+    }
+    
+    
   };
 
 

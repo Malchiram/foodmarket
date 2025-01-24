@@ -4,19 +4,27 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./main.css";
-import { Analytics } from "@vercel/analytics/react"
+import { Provider } from 'react-redux';
+// import { Analytics } from "@vercel/analytics/react"
 import { QueryClient, QueryClientProvider } from "react-query";
 import { UserContextProvider } from "./utils/context/userContext";
-
+import { persistor, store } from "./utils/store/store";
+import { PersistGate } from "redux-persist/integration/react";
 const client = new QueryClient();
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <UserContextProvider>
-    <React.StrictMode>
-      <QueryClientProvider client={client}>
-        <App />
-        <Analytics />
-      </QueryClientProvider>
-    </React.StrictMode>
-  </UserContextProvider>,
+
+  <Provider store={store}>
+    <PersistGate loading={null} persistor={persistor}>
+      <UserContextProvider>
+        <React.StrictMode>
+          <QueryClientProvider client={client}>
+
+            <App />
+            {/* <Analytics /> */}
+          </QueryClientProvider>
+        </React.StrictMode>
+      </UserContextProvider>,
+    </PersistGate>
+  </Provider>
 );

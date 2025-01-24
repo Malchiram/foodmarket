@@ -3,7 +3,7 @@ import { Container, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
 import Swal from "sweetalert2";
-import { useCustomMutation, useCustomQuery } from "../../config/query";
+import { useCustomMutation } from "../../config/query";
 import { addProduct } from "../../utils/admin";
 const AddProductInput = () => {
   const navigate = useNavigate();
@@ -30,9 +30,10 @@ const AddProductInput = () => {
       formData.set("title", productData.title);
       formData.set("price", Number(productData.price));
       formData.set("image", productData.image[0], productData.image[0].name);
-      const result = await postForm.mutate(formData);
+      const result = await postForm.mutateAsync(formData)
+        Swal.fire("Good job!", "Add Product Success");
       console.log(result, "ini result dari post");
-      // navigate("/admin");
+      navigate("/ProfilePartner");
     } catch (error) {
       throw new Error("Failed to posted data product ");
     }

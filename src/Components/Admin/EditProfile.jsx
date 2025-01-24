@@ -4,20 +4,22 @@ import { Container, Form } from "react-bootstrap";
 import { useCustomMutation } from "../../config/query";
 import { UserContext } from "../../utils/context/userContext";
 import { editProfile } from "../../utils/profile";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 const EditProfile = () => {
-  const [state, _] = useContext(UserContext);
-
+  const { isLogin, role, user } = useSelector((state) => state?.user);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [userUpdateData, setUserUpdateData] = useState({
-    fullname: state.user.fullname,
-    email: state.user.email,
-    address: state.user.address,
-    phone: state.user.phone,
-    shortname: state.user.shortname,
-    image: state.user.image ?? null,
-    lat: state.user.lat,
-    lng: state.user.lng,
+    fullname: user?.fullname,
+    email: user?.email,
+    address: user?.address,
+    phone: user?.phone,
+    shortname: user?.shortname,
+    image: user?.image ?? null,
+    lat: user?.lat,
+    lng: user?.lng,
   });
-  console.log(state);
   const postForm = useCustomMutation("patch", editProfile);
 
   const handleInputChange = (e) => {
@@ -27,25 +29,40 @@ const EditProfile = () => {
         e.target.type === "file" ? e.target.files : e.target.value,
     });
   };
-  const updateUser = (e) => {
+  const updateUser = async (e) => {
     e.preventDefault();
-    const formData = new FormData();
-    formData.set("fullname", userUpdateData.fullname);
-    formData.set("email", userUpdateData.email);
-    formData.set("phone", userUpdateData.phone);
-    formData.set("shortname", userUpdateData.shortname);
-    if (userUpdateData?.image[0]?.name) {
-      formData.set(
-        "image",
-        userUpdateData?.image[0],
-        userUpdateData?.image[0].name
-      );
-    } else {
+    try {
+      const formData = new FormData();
+      formData.set("fullname", userUpdateData.fullname);
+      formData.set("email", userUpdateData.email);
+      formData.set("phone", userUpdateData.phone);
+      formData.set("shortname", userUpdateData.shortname);
+      if (userUpdateData?.image[0]?.name) {
+        formData.set(
+          "image",
+          userUpdateData?.image[0],
+          userUpdateData?.image[0].name
+        );
+      } else {
+      }
+      formData.set("address", userUpdateData?.address);
+      formData.set("lat", userUpdateData?.lat);
+      formData.set("lng", userUpdateData?.lng);
+       await postForm.mutateAsync(formData, {
+        onSuccess: async (data) => {
+          await dispatch({ type: "UPDATED",  payload: data.data  });
+          console.log(data);
+          
+          if (role === "As Partner") {
+            navigate("/ProfilePartner");
+          } else {
+            navigate("/Profile");
+          }
+        },
+      });
+    } catch (error) {
+      console.log(error);
     }
-    formData.set("address", userUpdateData.address);
-    formData.set("lat", userUpdateData.lat);
-    formData.set("lng", userUpdateData.lng);
-    postForm.mutate(formData);
   };
   const inputRef = useRef(null);
 
@@ -64,9 +81,7 @@ const EditProfile = () => {
     <>
       <Container style={{ margin: "80px auto" }}>
         <h4 className="addProduct">
-          {state?.user?.role === "As User"
-            ? "Edit Profile"
-            : "Edit Profile Partner"}
+          {role === "As User" ? "Edit Profile" : "Edit Profile Partner"}
         </h4>
 
         <Form onSubmit={(e) => updateUser(e)}>
@@ -80,7 +95,7 @@ const EditProfile = () => {
               value={userUpdateData.fullname}
               onChange={handleInputChange}
               placeholder={
-                state?.user?.role === "As User" ? "Name User" : "Name Partner"
+                role === "As User" ? "Name User" : "Name Partner"
               }
               style={{
                 width: "69%",
@@ -129,23 +144,22 @@ const EditProfile = () => {
               }}
             />
           </Form.Group>
-          {state.user.role === "As Partner" && (
-
-          <Form.Group className="mt-3" controlId="exampleForm.ControlInput1">
-            <Form.Control
-              type="text"
-              name="shortname"
-              maxLength={5}
-              value={userUpdateData.shortname}
-              onChange={handleInputChange}
-              placeholder="Shortname"
-              style={{
-                backgroundColor: "#D2D2D240",
-                border: "2px solid #766C6C",
-                height: "50px",
-              }}
-            />
-          </Form.Group>
+          {role === "As Partner" && (
+            <Form.Group className="mt-3" controlId="exampleForm.ControlInput1">
+              <Form.Control
+                type="text"
+                name="shortname"
+                maxLength={5}
+                value={userUpdateData.shortname}
+                onChange={handleInputChange}
+                placeholder="Shortname"
+                style={{
+                  backgroundColor: "#D2D2D240",
+                  border: "2px solid #766C6C",
+                  height: "50px",
+                }}
+              />
+            </Form.Group>
           )}
 
           <Form.Group className=" mt-3" controlId="exampleForm.ControlInput1">

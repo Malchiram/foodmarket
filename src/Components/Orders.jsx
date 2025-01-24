@@ -1,38 +1,63 @@
-import { faMapLocation, faSquareMinus, faSquarePlus, faTrashCan } from "@fortawesome/free-solid-svg-icons";
+import {
+  faMapLocation,
+  faSquareMinus,
+  faSquarePlus,
+  faTrashCan,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { distance } from "@turf/turf";
-import { useContext, useEffect, useState } from "react";
+import {  useEffect, useMemo, useState } from "react";
 import { Col, Container, Form, Modal, Row } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { APILOC } from "../config/api";
 import { useCustomMutation, useCustomQuery } from "../config/query";
-import { UserContext } from "../utils/context/userContext";
 import { deleteAllorder, deleteorder } from "../utils/product";
 import { getOrder, postOrder } from "../utils/profile";
 import { transaction } from "../utils/transaction";
 import Map from "./Map";
+import { useDispatch, useSelector } from "react-redux";
+import { setOrderLength } from "../utils/action/orderAction";
+
+export const PriceList = ({ title, price }) => {
+  return (
+    <div
+      style={{
+        width: "100%",
+        display: "flex",
+        justifyContent: "space-between",
+      }}
+    >
+      <div>{title}</div>
+      <div>{price}</div>
+    </div>
+  );
+};
 
 const Orders = () => {
-  const navigate = useNavigate(6)
+  const navigate = useNavigate();
   // fetch & post
-  const order = useCustomMutation("try", postOrder)
-  const pay = useCustomMutation("pay", transaction)
-  const deleteid = useCustomMutation("deleteid", deleteorder)
-  let { data, isLoading, refetch } = useCustomQuery("test", getOrder)
+  const dispatch = useDispatch();
 
-  // Map 
-  const [showMap, setShowMap] = useState(false)
-  const [lat, setLat] = useState();
-  const [lng, setLng] = useState();
-  const [state, _] = useContext(UserContext)
+  const order = useCustomMutation("try", postOrder);
+  const pay = useCustomMutation("pay", transaction);
+  const deleteid = useCustomMutation("deleteid", deleteorder);
+  const { isLogin,role,user } = useSelector((state) => state?.user);
+
+
+  let { data, isLoading, refetch } = useCustomQuery("test", getOrder);
+  const [dataOrder, setDataOrder] = useState(data);
+
+  // Map
+  const [showMap, setShowMap] = useState(false);
+  const [lat, setLat] = useState(null);
+  const [lng, setLng] = useState(null);
 
   const [selectedLocation, setSelectedLocation] = useState();
-  const ongkir = 8000
+  const ongkir = 8000;
   const getLocation = (lats, lngs) => {
     APILOC.get(`/reverse?format=json&lat=${lats}&lon=${lngs}`).then(
       (response) => {
-        console.log(response, "ini response");
         setSelectedLocation(response?.data?.display_name);
       }
     );
@@ -54,52 +79,86 @@ const Orders = () => {
 
   // calculate
   const calculateDistance = (startLng, startLat, endLng, endLat) => {
-    const startPoint = ([startLng, startLat])
-    const endPoint = ([endLng, endLat])
-    const option = { units: 'kilometers' };
-    const dist = distance(startPoint, endPoint, option)
-    return dist
-  }
+    const startPoint = [startLng, startLat];
+    const endPoint = [endLng, endLat];
+    const option = { units: "kilometers" };
+    const dist = distance(startPoint, endPoint, option);
+    return dist;
+  };
 
+  const dataDistance = useMemo(() => {
+    if (!isLoading) {
+      const latUser = user?.lat;
+      const lngUser = user?.lng;
 
-  const latUser = state?.user.lat
-  const lngUser = state?.user.lng
-  const partnerLocLng = data[0]?.seller?.location?.split(",")[1]
-  const partnerLocLat = data[0]?.seller?.location?.split(",")[0]
-  useEffect(() => {
-    if (lat && lng) {
-      getLocation(lat, lng);
-      // console.log("engga ini yg terender");
-    } else if (latUser && lngUser) {
-      getLocation(
-        parseFloat(latUser),
-        parseFloat(lngUser)
-      );
-      // console.log("ini terrednder");
+      const partnerLocLat = data[0]?.seller?.lng ?? 0
+      const partnerLocLng = data[0]?.seller?.lat ?? 0
+      return {
+        latUser,
+        lngUser,
+        partnerLocLat,
+        partnerLocLng,
+      };
     }
-  }, [lat, lng, state?.user]);
+  }, [data, user ,isLoading]);
+  
 
-  const loc = `${lat}, ${lng}`;
+  useEffect(() => {
+    if (lat !== null && lng !== null) {
+      getLocation(lat, lng);
+    } else {
+      getLocation(dataDistance?.latUser, dataDistance?.lngUser);
+    }
+  }, [lat, lng, user]);
 
+  const dataTotal = useMemo(() => {
+    const total = data?.map((tot) => {
+      return tot.qty * tot.product.price;
+    });
 
+    const subTotal = total?.reduce((acc, curr) => acc + curr, 0);
 
+    const totalQty = data?.map((quantity) => {
+      return quantity.qty;
+    });
+    const subQty = totalQty?.reduce((acc, curr) => acc + curr, 0);
 
-  const total = data?.map((tot) => {
-    return tot.qty * tot.product.price
-  })
-  const subTotal = total.reduce((acc, curr) => acc + curr, 0
-  )
-
-  const totalQty = data.map((quantity) => {
-    return quantity.qty
-  })
-  const subQty = totalQty.reduce((acc, curr) => acc + curr, 0
-  )
-
-  const calculatedDistance = calculateDistance(partnerLocLng, partnerLocLat, lngUser, latUser)
-  const distances = calculatedDistance.toFixed(2)
-  let totalOngkir = ongkir * distances
-  let result = subTotal + totalOngkir
+    const calculatedDistance = calculateDistance(
+      dataDistance?.partnerLocLng,
+      dataDistance?.partnerLocLat,
+      dataDistance?.lngUser,
+      dataDistance?.latUser
+    );
+    const distances = calculatedDistance?.toFixed(2);
+    let totalOngkir = ongkir * distances;
+    let result = subTotal + totalOngkir;
+    return [
+      {
+        Title: "SubTotal",
+        Price: `Rp ${subTotal?.toLocaleString("en-ID")}`,
+      },
+      {
+        Title: "Quantity",
+        Price: subQty,
+      },
+      {
+        Title: "Sub Quantity",
+        Price: subTotal,
+      },
+      {
+        Title: "Distance",
+        Price: subTotal,
+      },
+      {
+        Title: "Ongkir",
+        Price: `${distances} Km`,
+      },
+      {
+        Title: "Total",
+        Price: `Rp ${result?.toLocaleString("en-ID")}`,
+      },
+    ];
+  }, [dataDistance, data]);
 
   const handleWaitingApprove = async (e) => {
     try {
@@ -107,35 +166,31 @@ const Orders = () => {
       const transaction = {
         buyerid: data[0]?.buyer?.id,
         sellerid: data[0]?.seller?.id,
-        totalPrice: Number(subTotal)
+        // totalPrice: Number(subTotal),
       };
 
       const body = JSON.stringify(transaction);
       const response = await pay.mutateAsync(body, {
         onSuccess: () => {
-          deleteAllorder()
-          refetch()
-          navigate("/Profile")
-        }
+          deleteAllorder();
+          refetch();
+          navigate("/Profile");
+        },
       });
 
-      console.log(response, "cek response");
       if (response) {
         const token = response?.token;
         window.snap.pay(token, {
           onSuccess: function (result) {
             /* You may add your own implementation here */
-            console.log(result);
             navigate("/Profile");
           },
           onPending: function (result) {
             /* You may add your own implementation here */
-            console.log(result);
             navigate("/Profile");
           },
           onError: function (result) {
             /* You may add your own implementation here */
-            console.log(result);
             navigate("/Profile");
           },
           onClose: function () {
@@ -144,8 +199,6 @@ const Orders = () => {
           },
         });
       }
-
-
     } catch (error) {
       console.log("transaction failed : ", error);
     }
@@ -156,7 +209,9 @@ const Orders = () => {
     const midtransScriptUrl = "https://app.sandbox.midtrans.com/snap/snap.js";
     //change this according to your client-key
     const myMidtransClientKey = process.env.REACT_APP_MIDTRANS_CLIENT_KEY;
-
+    if (!isLoading) {
+      setDataOrder(data);
+    }
     let scriptTag = document.createElement("script");
     scriptTag.src = midtransScriptUrl;
     // optional if you want to set script attribute
@@ -168,6 +223,8 @@ const Orders = () => {
       document.body.removeChild(scriptTag);
     };
   }, []);
+  console.log(dataOrder);
+
   return (
     <>
       <Modal size="xl" show={showMap} onHide={handleMapModalClose}>
@@ -184,20 +241,25 @@ const Orders = () => {
           <h3>{!isLoading && data ? data[0]?.seller?.fullname : "cinta"}</h3>
         </div>
 
-
         <Form.Label>Delivery Location</Form.Label>
-        <Form.Group className="d-flex justify-content-between mt-3" controlId="exampleForm.ControlInput1">
+        <Form.Group
+          className="d-flex justify-content-between mt-3"
+          controlId="exampleForm.ControlInput1"
+        >
           <Form.Control
             type="text"
             name="location"
             placeholder="Location"
             defaultValue={selectedLocation}
-            style={{ width: "75%", backgroundColor: "#fff", border: "1px solid #766C6C", height: "50px" }}
+            style={{
+              width: "75%",
+              backgroundColor: "#fff",
+              border: "1px solid #766C6C",
+              height: "50px",
+            }}
           />
           <div className="MapButton">
-            <button type="button"
-              onClick={handleMapButtonClick}
-            >
+            <button type="button" onClick={handleMapButtonClick}>
               Select On Map <FontAwesomeIcon icon={faMapLocation} />
             </button>
           </div>
@@ -205,132 +267,192 @@ const Orders = () => {
 
         <h2 className="mt-5">Review Your Order</h2>
 
-        <Row>
-          <Col lg={9}>
-            <div className=" mt-3">
-              {!isLoading && data.sort((a, b) => a.id - b.id).map((item) => {
-                return (
-
-                  <div className="d-flex justify-content-between" style={{ borderTop: "1px solid #000", borderBottom: "1px solid #000" }}>
-                    <div className="d-flex">
-                      <img src={item.product.image} alt="" className="imgTransaction" />
-                      <div>
-
-                        <p className="textTransaction">{item.product.title}</p>
-                        <h4>
-                          <span
-                            className="me-3"
-                            style={{
-                              color: "#FFAF00",
-                              borderRadius: "10px",
-                              cursor: "pointer",
-                            }}
-                            onClick={() => {
-                              if (item.qty > 1) {
-
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            width: "100%",
+          }}
+        >
+          <div
+            style={{
+              width: "73%",
+            }}
+          >
+            {!isLoading &&
+              dataOrder
+                ?.sort((a, b) => a.id - b.id)
+                .map((item, i) => {
+                  return (
+                    <div
+                      key={i}
+                      className="d-flex justify-content-between"
+                      style={{
+                        borderTop: "1px solid #000",
+                        borderBottom: "1px solid #000",
+                        height: "8rem",
+                      }}
+                    >
+                      <div className="d-flex">
+                        <img
+                          src={item?.product?.image}
+                          alt=""
+                          className="imgTransaction"
+                        />
+                        <div>
+                          <p className="textTransaction">
+                            {item?.product?.title}
+                          </p>
+                          <h4>
+                            <span
+                              className="me-3"
+                              style={{
+                                color: "#FFAF00",
+                                borderRadius: "10px",
+                                cursor: "pointer",
+                              }}
+                              onClick={() => {
+                                if (item?.qty > 1) {
+                                  let datas = {
+                                    qty: item?.qty - 1,
+                                    buyer_Id: item?.buyer.id,
+                                    seller_Id: item?.seller.id,
+                                    product_Id: item?.product_id,
+                                  };
+                                  order.mutateAsync(datas, {
+                                    onSuccess: async () => {
+                                      const updatedData = await refetch();
+                                      setDataOrder(updatedData?.data);
+                                    },
+                                  });
+                                }
+                              }}
+                            >
+                              <FontAwesomeIcon icon={faSquareMinus} />
+                            </span>
+                            {item?.qty}
+                            <span
+                              className="ms-3"
+                              style={{
+                                color: "#FFAF00",
+                                borderRadius: "10px",
+                                cursor: "pointer",
+                              }}
+                              onClick={() => {
                                 let datas = {
-                                  qty: item?.qty - 1,
-                                  buyer_Id: item?.buyer.id,
-                                  seller_Id: item?.seller.id,
-                                  product_Id: item?.product_id
-                                }
-                                order.mutate(datas, {
-                                  onSuccess: () => {
-                                    refetch()
-                                  }
-                                })
+                                  qty: item?.qty + 1,
+                                  buyer_Id: item?.buyer_id,
+                                  seller_Id: item?.seller_id,
+                                  product_Id: item?.product_id,
+                                };
+                                order.mutateAsync(datas, {
+                                  onSuccess: async () => {
+                                    const updatedData = await refetch();
+                                    setDataOrder(updatedData?.data);
+                                  },
+                                });
+                              }}
+                            >
+                              <FontAwesomeIcon icon={faSquarePlus} />
+                            </span>
+                          </h4>
+                        </div>
+                      </div>
+                      <div
+                        className="textTransaction "
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                          border: "solid 1px",
+                          height: "100%",
+                          width: "20%",
+                          alignItems: "center",
+                          gap: "10px",
+                        }}
+                      >
+                        <div className="d-flex ">
+                          {/* <div>Rp</div> */}
+                          <div>
+                            Rp {item?.product?.price?.toLocaleString("en-ID")}
+                          </div>
+                        </div>
+                        <div
+                          className="bin"
+                          onClick={() => {
+                            Swal.fire({
+                              title: "Are you sure want to delete this Order?",
+                              text: "You won't be able to revert this!",
+                              icon: "warning",
+                              showCancelButton: true,
+                              confirmButtonColor: "#3085d6",
+                              cancelButtonColor: "#d33",
+                              confirmButtonText: "Yes, delete it!",
+                            }).then((result) => {
+                              if (result.isConfirmed) {
+                                deleteid.mutateAsync(item?.id, {
+                                  onSuccess: async () => {
+                                    const updateData = await refetch();
+                                    dispatch(
+                                      setOrderLength(updateData?.data?.length)
+                                    );
+                                    if (updateData?.data?.length < 1) {
+                                      navigate("/");
+                                    }
+                                  },
+                                });
                               }
-                            }}
-                          >
-                            <FontAwesomeIcon icon={faSquareMinus} />
-                          </span>
-                          {item?.qty}
-                          <span
-                            className="ms-3"
-                            style={{
-                              color: "#FFAF00",
-                              borderRadius: "10px",
-                              cursor: "pointer",
-                            }}
-                            onClick={() => {
-                              let datas = {
-                                qty: item.qty + 1,
-                                buyer_Id: item?.buyer_id,
-                                seller_Id: item?.seller_id,
-                                product_Id: item?.product_id
-                              }
-                              order.mutate(datas, {
-                                onSuccess: () => {
-                                  refetch()
-                                }
-                              })
-
-                            }}
-                          >
-                            <FontAwesomeIcon icon={faSquarePlus} />
-                          </span>
-                        </h4>
+                            });
+                          }}
+                        >
+                          <FontAwesomeIcon icon={faTrashCan} />
+                        </div>
                       </div>
                     </div>
-                    <Row className="textTransaction me-3">
-                      <Col>Rp</Col>
-                      <Col>{item.product.price}</Col>
-                      <div className="bin" onClick={() => {
-                        Swal.fire({
-                          title: "Are you sure want to delete this Order?",
-                          text: "You won't be able to revert this!",
-                          icon: "warning",
-                          showCancelButton: true,
-                          confirmButtonColor: "#3085d6",
-                          cancelButtonColor: "#d33",
-                          confirmButtonText: "Yes, delete it!",
-                        }).then((result) => {
-                          if (result.isConfirmed) {
-                            deleteid.mutate(item.id, {
-                              onSuccess: () => {
-                                refetch()
-                              }
-                            })
-                          }
-                        })
-                      }}>
-                        <FontAwesomeIcon icon={faTrashCan} />
-                      </div>
-                    </Row>
-                  </div>
-                )
-              })}
-            </div >
-          </Col>
+                  );
+                })}
+          </div>
 
-          <Col lg={3} className="mt-3" >
-            <Row style={{ borderTop: "1px solid #000", padding: "20px 0" }}>
-              <Col lg={8}>Sub Total</Col>
-              <Col >Rp {subTotal.toLocaleString("en-ID")} </Col>
-              <Row >
-                <Col lg={8}>Quantity</Col>
-                <Col style={{ textAlign: "end" }}>{subQty}</Col>
-              </Row>
-              <Row >
-                <Col lg={8}>Distance</Col>
-                <Col style={{ textAlign: "end" }}>{distances} Km</Col>
-              </Row>
-              <Row >
-                <Col lg={8}>Ongkir</Col>
-                <Col style={{ textAlign: "end" }} >{totalOngkir.toLocaleString("en-ID")}</Col>
-              </Row>
-            </Row>
-            <Row style={{ borderTop: "1px solid #000", padding: "20px 0" }}>
-              <Col lg={8}>Total</Col>
-              <Col style={{ textAlign: "end" }}>Rp {result.toLocaleString("en-ID")}</Col>
-            </Row>
-          </Col>
-        </Row>
+          <div
+            style={{
+              width: "25%",
+            }}
+          >
+            <div
+              style={{
+                padding: "9px 0",
+                width: "100%",
+                borderTop: "1px solid #000",
+              }}
+            >
+              {dataTotal
+                .filter(
+                  (e) => e.Title !== "Total" && e.Title !== "Sub Quantity"
+                )
+                .map((e, i) => (
+                  <PriceList key={i} title={e.Title} price={e.Price} />
+                ))}
+            </div>
+            <div
+              style={{
+                padding: "9px 0",
+                width: "100%",
+                borderTop: "1px solid #000",
+              }}
+            >
+              {dataTotal
+                .filter(
+                  (e) => e.Title === "Total" && e.Title !== "Sub Quantity"
+                )
+                .map((e, i) => (
+                  <PriceList key={i} title={e.Title} price={e.Price} />
+                ))}
+            </div>
+          </div>
+        </div>
 
         <div className="transactionButton">
-          <button type="button"
-            onClick={(e) => handleWaitingApprove(e)}
-          >
+          <button type="button" onClick={(e) => handleWaitingApprove(e)}>
             ORDER
           </button>
         </div>

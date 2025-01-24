@@ -1,18 +1,13 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { useCustomMutation } from "../config/query";
-import { login } from "../utils/auth";
-import { UserContext } from "../utils/context/userContext";
-
 import Swal from "sweetalert2";
-import { setAuthToken } from "../config/api";
+import {  loginUser } from "../utils/auth";
 
 const Login = ({ show, handleCloseLogin }) => {
   const navigate = useNavigate();
-  const loginMutation = useCustomMutation("login", login);
-
-  const [_, dispatch] = useContext(UserContext);
+const dispatch = useDispatch()
 
   const [formLogin, setFormLogin] = useState({
     email: "",
@@ -31,16 +26,9 @@ const Login = ({ show, handleCloseLogin }) => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await loginMutation.mutateAsync(formLogin);
+      const response =await dispatch(loginUser(formLogin));
+      
       if (response) {
-        dispatch({
-          type: "LOGIN_SUCCESS",
-          payload: response,
-        });
-
-        setAuthToken(response?.token);
-
-        console.log(response?.role);
 
         if (response?.role === "As Partner") {
           navigate("/admin");

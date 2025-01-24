@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Col, Container, Row } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import Icon from "../../assets/waysfood/Icon.svg";
@@ -6,18 +6,19 @@ import { UserContext } from "../../utils/context/userContext";
 import { transactionPartner } from "../../utils/transaction";
 import { useCustomQuery } from "../../config/query";
 import { getProductId } from "../../utils/product";
+import { useSelector } from "react-redux";
 const DetailProfilePartner = () => {
   const navigate = useNavigate();
   const handleButtonProfile = () => {
     navigate("/EditProfile");
   };
-  const [state] = useContext(UserContext);
+  const { role,user } = useSelector((state) => state?.user);
+  const [datas,setDatas] = useState(user)
 
   let { data: Partner, isLoading: loading } = useCustomQuery(
-    ["data", state.user.id],
-    () => getProductId(state.user.id)
+    ["data", user?.id],
+    () => getProductId(user?.id)
   );
-  console.log(Partner, "ini data");
 
   const dateConvert = (params) => {
     var options = {
@@ -31,8 +32,18 @@ const DetailProfilePartner = () => {
   };
   let { data, isLoading } = useCustomQuery(
     "transactionPartner",
-    transactionPartner
+    transactionPartner, {
+      staleTime: Infinity, // Data akan dianggap selalu valid (tidak basi)
+      cacheTime: 1000 * 60 * 5, // Data akan tetap di-cache selama 5 menit
+    }
   );
+
+  useEffect(() => {
+    setDatas(user)
+  
+  
+  }, [user])
+  
 
   return (
     <>
@@ -48,20 +59,20 @@ const DetailProfilePartner = () => {
             <div>
               <div className="d-flex" style={{ gap: "10px" }}>
                 <div style={{ width: "25%" }}>
-                  <img src={state.user.image} alt="" className="imageProfile" />
+                  <img src={datas?.image} alt="" className="imageProfile" />
                 </div>
                 <Col md={8} className="detailProfile">
                   <div>
                     <h5>Name Partner</h5>
-                    <p>{state.user.fullname}</p>
+                    <p>{datas?.fullname}</p>
                   </div>
                   <div>
                     <h5>Email</h5>
-                    <p>{state.user.email}</p>
+                    <p>{datas?.email}</p>
                   </div>
                   <div>
                     <h5>Phone</h5>
-                    <p>{state.user.phone}</p>
+                    <p>{datas?.phone}</p>
                   </div>
                 </Col>
               </div>

@@ -1,15 +1,14 @@
-import { faBurger, faDoorOpen, faUser,faDashboard } from "@fortawesome/free-solid-svg-icons";
+import { faBurger, faDashboard, faDoorOpen, faUser } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useContext, useEffect, useState } from "react";
+import {  useEffect, useState } from "react";
 import { Badge, Button, Container, Nav, NavDropdown, Navbar } from "react-bootstrap";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import Icon from "../assets/waysfood/Icon.svg";
 import Vect from "../assets/waysfood/Vector.png";
-import { useCustomQuery } from "../config/query";
-import { UserContext } from "../utils/context/userContext";
-import { getOrder } from "../utils/profile";
 import Login from "./Login";
 import Register from "./Register";
+import { logoutUser } from "../utils/auth";
 
 function NavbarMenu({ className }) {
   const [show, setShowLogin] = useState(false);
@@ -19,31 +18,27 @@ function NavbarMenu({ className }) {
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
   const navigate = useNavigate();
-  const [testLength, setTestLength] = useState(0);
+const dispatch = useDispatch();
 
-  const [state, dispatch] = useContext(UserContext);
-
-  let { data: test, isLoading, isSuccess } = useCustomQuery("test", getOrder)
-  useEffect(() => {
-    setTestLength(test?.length || 0);
-  }, [test?.length]);
+  const { isLogin,role,user } = useSelector((state) => state?.user);
+  const { orderLength } = useSelector((state) => state?.order);
 
   const handleLogout = () => {
-    dispatch({
-      type: "LOGOUT",
-    });
+    dispatch(logoutUser());
     navigate("/");
   };
 
   const handleOrder = () => {
     navigate("/transaction")
   }
-
+  const [datas, setdatas] = useState(user);
   useEffect(() => {
-    // Lakukan refetch atau pembaruan data lainnya yang diperlukan saat test.length berubah
-    // ...
-  }, [testLength]);
-
+    setdatas(user)
+  
+  
+  }, [user]);
+  
+  
   return (
     <>
       <Navbar className="setNav backgroundImageAdmin" >
@@ -54,8 +49,8 @@ function NavbarMenu({ className }) {
             </Link>
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          {state.isLogin === true ? (
-            state.user.role === "As User" ? (
+          {isLogin === true ? (
+            role === "As User" ? (
               <Navbar.Collapse id="navbarScroll">
                 <Nav
                   className="ms-auto"
@@ -63,13 +58,10 @@ function NavbarMenu({ className }) {
                 >
                   <div className="containerBadge" onClick={handleOrder}>
                     <img src={Vect} alt="" className="imgUserBucket" />
-                    {!isLoading && isSuccess && test !== null && (
 
-                      <Badge bg="danger" className="badge">{testLength}</Badge>
-                    )
-                    }
+                      <Badge bg="danger" className="badge">{orderLength}</Badge>
                   </div>
-                  <NavDropdown title={<img src={state.user.image} alt="" className="imgPartnerUser" />}>
+                  <NavDropdown title={<img src={datas?.image} alt="" className="imgPartnerUser" />}>
                     <NavDropdown.Item href="/Profile">
                       <FontAwesomeIcon icon={faUser} className="icsPartner" />
                       Profile</NavDropdown.Item>
@@ -81,11 +73,11 @@ function NavbarMenu({ className }) {
                   </NavDropdown>
                 </Nav>
               </Navbar.Collapse>
-            ) : state.user.role === "As Partner" ? (
+            ) : role === "As Partner" ? (
                 <Navbar.Collapse id="navbarScroll" >
                   <Nav  className="ms-auto " navbarScroll >
                     <NavDropdown   title={
-                      <img src={state.user.image} alt="" className="imgPartnerUser" />
+                      <img src={datas?.image} alt="" className="imgPartnerUser" />
                     }>
                       <NavDropdown.Item href="/admin" className="dropPartner">
                         <FontAwesomeIcon icon={faDashboard} className="icsPartner" />

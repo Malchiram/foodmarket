@@ -1,39 +1,31 @@
-import { useContext } from "react";
-import { UserContext } from "../utils/context/userContext";
 import { Navigate, Outlet } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 export function PrivateRouteUser() {
-  const [state] = useContext(UserContext);
+  const { role } = useSelector((state) => state?.user);
 
-  if (state.user.role === "admin") {
+  if (role === "As Partner") {
     return <Navigate to="/" />;
   }
   return <Outlet />;
 }
 
 export const PrivateRouteLogin = () => {
-  const [userState] = useContext(UserContext);
+  const { isLogin } = useSelector((state) => state?.user);
 
-  if (!userState.isLogin) {
+  if (!isLogin) {
     return <Navigate to="/" />;
   }
 
   return <Outlet />;
 };
 
-export function PublicRoute() {
-  const [state] = useContext(UserContext);
 
-  if (state.user.role === "admin") {
-    return <Navigate to="/admin" />;
-  }
-  return <Outlet />;
-}
 
 export function PrivateRouteAdmin() {
-  const [state] = useContext(UserContext);
-
-  if (state.user.role !== "As Partner") {
+  const { role } = useSelector((state) => state?.user);
+ 
+  if (role !== "As Partner") {
     return <Navigate to="/" />;
   }
   return <Outlet />;

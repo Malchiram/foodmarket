@@ -1,7 +1,7 @@
 import { useQuery, useMutation, queryClient } from "react-query";
 
-export function useCustomQuery(queryKey, queryFn) {
-  return useQuery(queryKey, queryFn);
+export function useCustomQuery(queryKey, queryFn,options) {
+  return useQuery(queryKey, queryFn,options);
 }
 
 export function getQueryData(queryClient, queryKey) {

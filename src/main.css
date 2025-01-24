@@ -436,13 +436,9 @@ input[type=file]::-webkit-file-upload-button {
   font-family: "Abhaya Libre ExtraBold";
   font-weight: 800;
   font-size: 18px;
-  margin-top: 31px;
-  margin-bottom: 5px;
+  
 }
-.bin {
-  text-align: end;
-  padding-right: 24px;
-}
+
 
 .transactionButton {
   float: right;

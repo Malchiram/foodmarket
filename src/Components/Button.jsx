@@ -21,7 +21,6 @@ const Buttons = ({ onSearch }) => {
       }
     }
   };
-  console.log(searchTerm, "ini pencariannya");
 
   return (
     <Container className="buttonSearch">

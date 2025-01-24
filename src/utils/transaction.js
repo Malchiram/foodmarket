@@ -1,15 +1,16 @@
-import { API } from "../config/api";
+import api, { API } from "../config/api";
+import { secureLS } from "./auth";
 
 export async function transaction(data) {
   try {
     const config = {
       headers: {
         "Content-type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
+       
       },
     };
 
-    const transaction = await API.post("transaction", data, config);
+    const transaction = await api.post("transaction", data, config);
     console.log("Post Success", transaction);
     return transaction?.data?.data;
   } catch (error) {
@@ -18,13 +19,9 @@ export async function transaction(data) {
 }
 export async function transactionUser() {
   try {
-    const config = {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    };
+  
 
-    const transaction = await API.get("transaction-user", config);
+    const transaction = await api.get("transaction-user");
     if (transaction && transaction.status === 200) {
 
       return transaction?.data?.data;
@@ -34,14 +31,16 @@ export async function transactionUser() {
   }
 }
 export async function transactionPartner() {
+ const token = secureLS.get('authToken')
+
   try {
     const config = {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        "Authorization"  : `Bearer ${token}` 
       },
     };
 
-    const transaction = await API.get("transaction-partner", config);
+    const transaction = await api.get("transaction-partner", config);
     if (transaction && transaction.status === 200) {
 
       return transaction?.data?.data;

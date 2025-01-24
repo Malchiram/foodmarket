@@ -35,7 +35,7 @@ const IncomingTransaction = ({ data, isLoading }) => {
   });
   const npage = Math.ceil(data.length / recordperPage);
 
-  const number = [...Array(npage + 1).keys()].slice(1);
+  const number = [...Array(npage + 1).keys()]?.slice(1);
 
   console.log(data, "ini datas dari iTransaction");
 

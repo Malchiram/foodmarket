@@ -1,7 +1,8 @@
-import { Col, Container, Row } from "react-bootstrap";
-import { UserContext } from "../utils/context/userContext";
 import { distance } from "@turf/turf";
-import { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
+import { Container } from "react-bootstrap";
+import { UserContext } from "../utils/context/userContext";
+import { useSelector } from "react-redux";
 const Recommended = ({ data, load }) => {
   const calculateDistance = (startLng, startLat, endLng, endLat) => {
     const startPoint = [startLng, startLat];
@@ -10,8 +11,8 @@ const Recommended = ({ data, load }) => {
     const dist = distance(startPoint, endPoint, option);
     return dist;
   };
+  const { isLogin,role,user } = useSelector((state) => state?.user);
 
-  const [state, _] = useContext(UserContext);
 
     return (
     <>
@@ -30,12 +31,12 @@ const Recommended = ({ data, load }) => {
                     <img src={item?.image} alt="" className="imageRes" />
                     <p className="textRes">{item?.fullname}</p>
                     <p className="textDistance">
-                      {state?.isLogin && state.user.role !== "As Partner"
+                      {isLogin && role !== "As Partner"
                         ? calculateDistance(
                             item?.lng,
                             item?.lat,
-                            state?.user?.lng,
-                            state?.user?.lat
+                            user?.lng,
+                            user?.lat
                           ).toFixed(2)
                         : 0}
                       KM

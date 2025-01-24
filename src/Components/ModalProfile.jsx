@@ -8,6 +8,7 @@ import { useMutation } from "react-query";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { API } from "../config/api";
+import { secureLS } from "../utils/auth";
 
 export const ModalProfile = ({ onHide, show, data }) => {
   let navigate = useNavigate();
@@ -53,11 +54,12 @@ export const ModalProfile = ({ onHide, show, data }) => {
   const handleSubmit = useMutation(async (e) => {
     try {
       e.preventDefault();
-
+ const token = secureLS.get('authToken')
       // Configuration
       const config = {
         headers: {
           "Content-type": "multipart/form-data",
+          "Authorization"  : `Bearer ${token}` 
         },
       };
 
@@ -75,8 +77,7 @@ export const ModalProfile = ({ onHide, show, data }) => {
       formData.set("address", updateProfile.address);
 
       // await disini berfungsi untuk menunggu sampai promise tersebut selesai dan mengembalikkan hasilnya
-      const response = await API.patch("user", formData, config);
-      console.log(response.data, "cekkkk");
+       await API.patch("user", formData, config);
       Swal.fire({
         position: "center",
         icon: "success",
